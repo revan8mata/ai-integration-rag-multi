@@ -87,7 +87,7 @@ OPENAI_API_KEY=your_openai_api_key
 
 ## Status
 
-Actively developed learning project. Built solo over ~1 week, covering RAG pipelines, streaming architecture, concurrency (asyncio), Redis-based rate limiting, and webhook delivery systems with retry logic.
+Actively developed learning project. Built solo over ~2-3 week, covering RAG pipelines, streaming architecture, concurrency (asyncio), Redis-based rate limiting, and webhook delivery systems with retry logic.
 
 ## Contact
 

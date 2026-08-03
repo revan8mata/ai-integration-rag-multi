@@ -22,6 +22,7 @@ async def get_relevant_chunks(query: str,user_id: int, db: Session) -> str:
         .order_by(models.Chunk.embedding.cosine_distance(query_vector))
         .limit(5)
     ).scalars().all()
+    print(results)
     return "\n\n".join([chunk.text for chunk in results])
 
 # vector comperasion point

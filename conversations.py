@@ -23,7 +23,8 @@ ROUTER = APIRouter(tags=['conversations'])
 client = genai.Client(api_key=settings.api_key)
 
 async def streameresponse(history, conversation_id,  current_user_id ,
-                          background_tasks ,   db  ,  payload: dict  ,   event_type: str = None   ,    provider="gemini"):
+                          background_tasks ,   db  ,  payload: dict  ,   event_type: str = None   ,  provider="gemini"):
+
     full_text = ""
     last_metadata = None
     try:
@@ -56,7 +57,8 @@ async def streameresponse(history, conversation_id,  current_user_id ,
 
 @ROUTER.post("/talk", status_code=status.HTTP_201_CREATED)
 async def talk(prompt : schemas.Prompt,
-               background_tasks:BackgroundTasks,db: Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user),provider: str = "gemini"):
+               background_tasks:BackgroundTasks,
+               db: Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user),provider: str = "gemini"):
     conversation = models.Conversation(
         user_id=current_user.id,
         title=prompt.content[:40]
@@ -76,14 +78,19 @@ async def talk(prompt : schemas.Prompt,
 
     check_rate_limit(current_user.id, "chat", 10, 60)
 
-
     retrieval = await get_relevant_chunks(prompt.content,current_user.id, db)
-    history = [f"""Answer the user's question using ONLY the context below. If the answer isn't in the context, say you don't know.
-    Context:
-    {retrieval}
 
-    User question: {prompt.content}"""]
+    history = [{
+        "role": "user",
+        "parts": [{"text": f"""Use ONLY this context to answer questions. If the answer is not in the context, say you don't know.
 
+Context:
+{retrieval}
+
+User question:
+{prompt.content}
+"""}]
+    }]
 
 
     return StreamingResponse(
@@ -97,12 +104,26 @@ async def talk(prompt : schemas.Prompt,
     payload=payload),
     media_type="text/event-stream"
 )
+# 1. db set up
+# 2. rate limit check
+# 3. retrival
+# 4. prompt and context formated
+# 5. RETURN ( streaming and streameresponse() )
+# 6. llm call and error handle --> llm provider chosen - formatbased on provider
+# meta data abstraction - yeald response and meta data
+# 7. db messege commit.
+# 8. webhook
+#
 
 #start conversations  event_type: str,   payload: dict,
 
 
 @ROUTER.post("/conversations/{conversation_id}/messages",response_model=schemas.gemini)
-async def conversation (conversation_id : int, prompt: schemas.Prompt, db: Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user)):
+async def conversation (conversation_id : int,
+                        prompt: schemas.Prompt,
+                        background_tasks:BackgroundTasks,
+                        db: Session = Depends(get_db),
+                        current_user : int = Depends(oauth2.get_current_user) , provider="gemini"):
     query = (db.execute(select(models.Conversation)
                       .where(models.Conversation.id == conversation_id,
                              models.Conversation.user_id == current_user.id))).scalar_one_or_none() #find out the conversation that blongs to the user
@@ -127,6 +148,7 @@ async def conversation (conversation_id : int, prompt: schemas.Prompt, db: Sessi
             {"text": prompt.content}
         ]
     })
+
     retrieval = await get_relevant_chunks(prompt.content,current_user.id, db)
     history.insert(0, {
         "role": "user",
@@ -136,7 +158,7 @@ async def conversation (conversation_id : int, prompt: schemas.Prompt, db: Sessi
     })
 
     check_rate_limit(current_user.id, "chat", 10, 60)
-    check_token_limit(current_user.id, 100)
+
     message1 = models.Message(
         conversation_id=conversation_id,
         role="user",
@@ -146,9 +168,16 @@ async def conversation (conversation_id : int, prompt: schemas.Prompt, db: Sessi
     db.flush()
 
     return StreamingResponse(
-        streameresponse(history, message.conversation_id, current_user.id, db),
+        streameresponse(history=history,
+                        conversation_id=message.conversation_id,
+                        current_user_id=current_user.id,
+                        db=db ,
+                        background_tasks=background_tasks,
+                        provider=provider),
         media_type="text/event-stream")
     # keep going with already existing conversations
+
+
 
 @ROUTER.delete('/conversations/{id}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_conversation(id : int , background_tasks:BackgroundTasks,
@@ -160,12 +189,14 @@ async def delete_conversation(id : int , background_tasks:BackgroundTasks,
     dlt_conversation = db.execute(select(models.Conversation).where(models.Conversation.id == id,
                                           models.Conversation.user_id == current_user.id)).scalar_one_or_none()
     if not dlt_conversation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="conversation not found")
+        raise HTTPException(status_code =status.HTTP_404_NOT_FOUND,detail="conversation not found")
     title_conversation = dlt_conversation.title
     db.delete(dlt_conversation)
     db.commit()
-    background_tasks.add_task(fire_webhook, event_type="document_uploaded", payload={"conversation_id": conv_id,
-                                                                                     "conversation_title": title_conversation,
+    background_tasks.add_task(fire_webhook,
+                              event_type="document_uploaded",
+                              payload={"conversation_id": conv_id,
+                              "conversation_title": title_conversation,
                                                                                      }
                               , db=db, user_id=current_user.id)
 
@@ -232,15 +263,13 @@ async def deliver_webhook(webhook, payload):
 
 async def fire_webhook(event_type: str, payload: dict, user_id: int, db: Session):
     webhooks = db.execute(
-        select(models.Webhook)
-        .where(models.Webhook.user_id == user_id,
-               models.Webhook.event_type == event_type)
+        select(models.Webhooks)
+        .where(models.Webhooks.user_id == user_id,
+               models.Webhooks.event_type == event_type)
     ).scalars().all()
 
     tasks = [deliver_webhook(webhook, payload) for webhook in webhooks]
     await asyncio.gather(*tasks)
-
-
 
 
     # await asyncio.gather(
@@ -266,3 +295,4 @@ async def hook(create: schemas.WebhookCreate,db: Session = Depends(get_db),curre
     return {"new_webhook": "webhook created"}
 
 # webhook signup
+

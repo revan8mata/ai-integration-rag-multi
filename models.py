@@ -16,7 +16,7 @@ class User(base):
 class Conversation(base):
     __tablename__ = 'conversations'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id',ondelete='CASCADE'))
     title = Column(String)
     created_at = Column(DateTime, default=func.now())
 
@@ -33,7 +33,7 @@ class Message(base):
 class Document(base):
     __tablename__ = 'documents'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id',ondelete='CASCADE'))
     filename = Column(String)
     created_at = Column(DateTime, default=func.now())
 
@@ -48,7 +48,7 @@ class Chunk(base):
 class Webhooks(base):
     __tablename__ = 'webhooks'
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id',ondelete='CASCADE'))
     url = Column(String)
     event_type = Column(String)
     created_at = Column(DateTime, default=func.now())

@@ -55,7 +55,7 @@ async def streameresponse(history, conversation_id,  current_user_id ,
 
 
 
-@ROUTER.post("/talk", status_code=status.HTTP_201_CREATED)
+@ROUTER.post("/talk" ) #stat code 200 = streaming
 async def talk(prompt : schemas.Prompt,
                background_tasks:BackgroundTasks,
                db: Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user),provider: str = "gemini"):

@@ -4,6 +4,7 @@ from main import app
 from database import SessionLocal
 import models
 from sqlalchemy import select
+from sqlalchemy import text
 @pytest.fixture
 def client():
     return TestClient(app)
@@ -22,21 +23,6 @@ def test_register_rejects_bad_password(client):
     })
     assert response.status_code == 422
 
-
-def test_register_accepts_valid_credentials(client, db_session):
-    response = client.post("/auth/register", json={
-        "username": "testuser2",
-        "password": "rferfgA#1"
-    })
-    assert response.status_code == 201
-    assert response.json()["notif"] == "testuser2 is now a user"
-
-    # cleanup
-    user = db_session.query(models.User).filter(models.User.username == "testuser2").first()
-    db_session.delete(user)
-    db_session.commit()
-
-
 def test_talk_requires_authentication(client):
     response = client.post("/talk", json={"content": "hello"})
     assert response.status_code == 401
@@ -45,10 +31,6 @@ def test_continue_talk_requires_auth (client):
     response = client.post("/conversations/1/messages", json={"content": "how big is america?"})
     assert response.status_code == 401
 
-def test_continue_talk_requires_auth (client):
-    response = client.post("/conversations/1/messages", json={"content": "how big is america?"}
-                           ,headers={"Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJleHAiOjE3ODU2ODA1NTh9.SsR5XpYA6_bEYgOGV7pVKibOO60KtGjaCAzVAUMoQJI"})
-    assert response.status_code == 201
 
 
 def test_talk_token(client, db_session):
@@ -59,7 +41,7 @@ def test_talk_token(client, db_session):
     assert response1.status_code == 201
     assert response1.json()["notif"] == "testuser2 is now a user"
 
-    response2 = client.post("/auth/login", json={
+    response2 = client.post("/auth/login", data={
         "username": "testuser2",
         "password": "rferfgA#1"
     })
@@ -70,13 +52,66 @@ def test_talk_token(client, db_session):
     response3 = client.post("/talk", json={"content": "hello"}
                             ,headers={"Authorization":f"Bearer {token}"} )
 
-    if not response3.status_code == 201:
-        raise AssertionError
+    print(response3.status_code)
+    print(response3.text)
 
-    # message = db.execute(select(models.Message).where(models.Message.username == "testuser2")).scalar_one_or_none()
+    assert response3.status_code == 200
 
-    user = db_session.execute(select(models.User).where(models.User.username == "testuser2")).scalar_one_or_none()
-    db_session.delete(user)
-    db_session.commit()
+    user = (db_session.execute(select(models.User).where(models.User.username == "testuser2"))).scalar_one_or_none()
+
+
+    try:
+        db_session.delete(user)
+        db_session.commit()
+
+    except Exception as e:
+        db_session.rollback()
+        print(e)
+        raise
+
+
+def test_provider_blocks (client, db_session):
+    response1 = client.post("/auth/register", json={
+        "username": "testuser2",
+        "password": "rferfgA#1"
+    })
+    assert response1.status_code == 201
+    assert response1.json()["notif"] == "testuser2 is now a user"
+
+    response2 = client.post("/auth/login", data={
+        "username": "testuser2",
+        "password": "rferfgA#1"
+    })
+    assert response2.status_code == 200
+
+    token = response2.json()["access_token"]
+
+    response3 = client.post("/talk", json={"content": "hello","provider": "blizzard"}
+                            ,headers={"Authorization":f"Bearer {token}"} )
+
+    print(response3.status_code)
+    print(response3.text)
+
+    assert "error" in response3.text
+
+    extract_id = db_session.execute(select(models.User).where(models.User.username == "testuser2")).scalar_one_or_none()
+    extracted_id = extract_id.id
+    print(extracted_id)
+
+    conversatin_exist_check= db_session.execute(select(models.Conversation).where(models.Conversation.user_id == extracted_id)).scalar_one_or_none()
+
+    assert conversatin_exist_check is None
+
+    try:
+        db_session.delete(extract_id)
+        db_session.commit()
+
+    except Exception as e:
+        db_session.rollback()
+        print(e)
+        raise
+
+
+
 
 

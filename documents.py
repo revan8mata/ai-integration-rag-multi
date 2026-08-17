@@ -53,7 +53,8 @@ async def post_docs(background_tasks: BackgroundTasks,file: UploadFile = File(..
         result = client.models.embed_content(
             model="gemini-embedding-001",
             contents=chunk_text,
-            config=types.EmbedContentConfig(output_dimensionality=768)
+            config=types.EmbedContentConfig(output_dimensionality=768),
+            task_type="RETRIEVAL_DOCUMENT"
         )
 
         vector = result.embeddings[0].values

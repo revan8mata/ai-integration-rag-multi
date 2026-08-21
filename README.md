@@ -7,7 +7,7 @@ Built as a learning project and freelance portfolio piece — designed to be gen
 
 ## Features
 
-- **Retrieval-Augmented Generation (RAG)** — upload PDF/text documents, get chunked, embedded, and stored as vectors. Chat responses are grounded in your own documents instead of relying purely on the LLM's training data.
+- **Retrieval-Augmented Generation (RAG)** — upload PDF/text documents, get chunked, embedded, and stored as vectors. Chat responses are grounded in your own documents instead of relying purely on the LLM's training data. now with LangChain
 - **Streaming responses** — token-by-token delivery via Server-Sent Events, same UX as ChatGPT/Claude, instead of waiting for a full response.
 - **Multi-provider LLM support** — switch between Gemini and OpenAI per-request, with a clean provider abstraction layer for adding more providers later.
 - **Two deployable business models** (separate branches):

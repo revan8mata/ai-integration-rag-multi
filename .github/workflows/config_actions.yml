@@ -3,10 +3,12 @@ name: Build and Test Code
 on:
   push:
   pull_request:
+
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
   API_KEY: ${{ secrets.API_KEY }}
   ANTHROPIC_API_KEY: 34978398
+
   DATABASE_HOSTNAME: localhost
   DATABASE_PORT: 5432
   DATABASE_PASSWORD: postgres
@@ -64,15 +66,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Enable pgvector
-        run: |
-          PGPASSWORD=postgres psql \
-            -h localhost \
-            -U postgres \
-            -d testdb \
-            -c "CREATE EXTENSION IF NOT EXISTS vector;"
-      - name: Run Alembic migrations
-        run: alembic upgrade head
       - name: Check API key
         run: |
           if [ -n "$API_KEY" ]; then
@@ -81,6 +74,18 @@ jobs:
             echo "API_KEY is EMPTY"
             exit 1
           fi
+
+      - name: Enable pgvector
+        run: |
+          PGPASSWORD=postgres psql \
+            -h localhost \
+            -U postgres \
+            -d testdb \
+            -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+      - name: Run Alembic migrations
+        run: alembic upgrade head
+
       - name: Run pytest
         run: pytest
 

@@ -72,7 +72,14 @@ jobs:
             -c "CREATE EXTENSION IF NOT EXISTS vector;"
       - name: Run Alembic migrations
         run: alembic upgrade head
-
+      - name: Check API key
+        run: |
+          if [ -n "$API_KEY" ]; then
+            echo "API_KEY is present"
+          else
+            echo "API_KEY is EMPTY"
+            exit 1
+          fi
       - name: Run pytest
         run: pytest
 

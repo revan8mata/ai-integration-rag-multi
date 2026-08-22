@@ -7,7 +7,7 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
-    environment: production
+    environment: DOCKER_USERNAME
 
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

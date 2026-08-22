@@ -18,7 +18,9 @@ ROUTER = APIRouter(tags=['DOCS'],prefix="/docs")
 client = genai.Client(api_key=settings.api_key)
 
 @ROUTER.post('/')
-async def post_docs(background_tasks: BackgroundTasks,file: UploadFile = File(...),db: Session = Depends(get_db),current_user : int = Depends(oauth2.get_current_user,)):
+async def post_docs(background_tasks: BackgroundTasks,file: UploadFile = File(...),
+                    db: Session = Depends(get_db),
+                    current_user : int = Depends(oauth2.get_current_user,)):
 
     user = db.execute(select(models.User)
                       .where(models.User.id == current_user.id)).scalar_one_or_none()
@@ -53,8 +55,10 @@ async def post_docs(background_tasks: BackgroundTasks,file: UploadFile = File(..
         result = client.models.embed_content(
             model="gemini-embedding-001",
             contents=chunk_text,
-            config=types.EmbedContentConfig(output_dimensionality=768),
-            task_type="RETRIEVAL_DOCUMENT"
+            config=types.EmbedContentConfig(
+                output_dimensionality=768,
+                task_type="RETRIEVAL_DOCUMENT"  # move it in here
+            ),
         )
 
         vector = result.embeddings[0].values
@@ -113,7 +117,7 @@ async def delete_docs(id: int,db: Session = Depends(get_db),current_user : int =
 # ["the", "cat", "sat", "on", "the", "mat", "and", "looked", "around"]
 
 # chunks = [" ".join(words[i:i+4]) for i in range(0, len(words), 4)]
-# chunk size 4 for simplicity
+
 
 # chunk 1: words[0:4]  → ["the", "cat", "sat", "on"]    → "the cat sat on"
 # chunk 2: words[4:8]  → ["the", "mat", "and", "looked"] → "the mat and looked"

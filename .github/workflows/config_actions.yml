@@ -13,6 +13,8 @@ env:
   DATABASE_NAME: testdb
   DATABASE_USERNAME: postgres
 
+  REDIS_URL: redis://localhost:6379/0
+
   SECRET_KEY: your-secret-key
   ALGORITHM: HS256
   ACCESS_TOKEN_EXPIRE_MINUTES: 7200
@@ -61,11 +63,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Set environment variables
+      - name: Enable pgvector
         run: |
-          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/testdb" >> $GITHUB_ENV
-          echo "REDIS_URL=redis://localhost:6379/0" >> $GITHUB_ENV
-
+          PGPASSWORD=postgres psql \
+            -h localhost \
+            -U postgres \
+            -d testdb \
+            -c "CREATE EXTENSION IF NOT EXISTS vector;"
       - name: Run Alembic migrations
         run: alembic upgrade head
 

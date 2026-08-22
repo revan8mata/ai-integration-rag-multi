@@ -3,6 +3,16 @@ name: Build and Test Code
 on:
   push:
   pull_request:
+env:
+  DATABASE_HOSTNAME: localhost
+  DATABASE_PORT: 5432
+  DATABASE_PASSWORD: postgres
+  DATABASE_NAME: testdb
+  DATABASE_USERNAME: postgres
+
+  SECRET_KEY: your-secret-key
+  ALGORITHM: HS256
+  ACCESS_TOKEN_EXPIRE_MINUTES: 7200
 
 jobs:
   job1:

@@ -205,7 +205,7 @@ async def post_docs(
         db.add(doc)
         db.flush()  # get doc.id without committing yet
 
-            for chunk_str, vector in zip(chunks, vectors):
+        for chunk_str, vector in zip(chunks, vectors):
             db.add(models.Chunk(document_id=doc.id, text=chunk_str, embedding=vector))
 
         db.commit()

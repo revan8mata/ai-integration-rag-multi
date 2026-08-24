@@ -23,7 +23,7 @@ ROUTER = APIRouter(tags=['conversations'])
 client = genai.Client(api_key=settings.api_key)
 
 async def streameresponse(history, conversation_id,  current_user_id ,
-                          background_tasks ,   db  ,  payload: dict  ,   event_type: str = None   ,  provider="gemini"):
+                          background_tasks ,   db  ,  payload: dict = None  ,   event_type: str = None   ,  provider="gemini"):
 
     full_text = ""
     last_metadata = None
@@ -82,7 +82,8 @@ async def talk(prompt : schemas.Prompt,
 
     history = [{
         "role": "user",
-        "parts": [{"text": f"""Use ONLY this context to answer questions. If the answer is not in the context, say you don't know.
+        "parts": [{"text": f"""Use ONLY this context to answer questions.you are talking to a everyday user so 
+         modify your way of communicating. If the answer is not in the context, say you don't know.
 
 Context:
 {retrieval}

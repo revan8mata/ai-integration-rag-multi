@@ -23,7 +23,7 @@ async def login(user_credentials : OAuth2PasswordRequestForm = Depends() , db: S
     if not utilities.verify(user_credentials.password, logger.hashed_password):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,detail="Incorrect username or password")
 
-    create_access_token = oauth2.create_token(data = {"user_id": logger.id})
+    create_access_token = oauth2.create_token(data = {"user_id": logger.id, "is_admin": logger.is_admin})
     return {"access_token": create_access_token, "token_type": "bearer"}
 
 

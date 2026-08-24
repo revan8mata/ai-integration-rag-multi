@@ -35,6 +35,7 @@ class Document(base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id',ondelete='CASCADE'))
     filename = Column(String)
+    content_hash = Column(String, unique=True, index=True, nullable=True)
     created_at = Column(DateTime, default=func.now())
 
 class Chunk(base):

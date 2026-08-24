@@ -26,9 +26,10 @@ def verify_access_token(token: str,credential_exception):
                              SECRET_KEY,
                              algorithms=[ALGORITHM])
         id: str = payload.get("user_id")
+        is_user: bool = payload.get("is_admin")
         if id is None:
             raise credential_exception
-        Token_Data = schemas.   TokenData(id=int(id))
+        Token_Data = schemas.   TokenData(id=int(id),is_admin=is_user)
 
     except JWTError:
         raise credential_exception

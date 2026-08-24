@@ -11,8 +11,8 @@ async def get_relevant_chunks(query: str,user_id: int, db: Session) -> str:
     result = client.models.embed_content(
         model="gemini-embedding-001",
         contents=query,
-        config=types.EmbedContentConfig(output_dimensionality=768),
-        task_type="RETRIEVAL_QUERY"
+        config=types.EmbedContentConfig(output_dimensionality=768,
+                                        task_type="RETRIEVAL_DOCUMENT")
     )
     query_vector = result.embeddings[0].values
 

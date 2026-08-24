@@ -57,6 +57,7 @@ class gemini(BaseModel):
 
 class TokenData(BaseModel):
     id: int | None = None
+    is_admin: bool
 
 class conversation(BaseModel):
     user_id: int

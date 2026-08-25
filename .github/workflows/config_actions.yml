@@ -20,7 +20,8 @@ jobs:
       DATABASE_NAME: testdb
       DATABASE_USERNAME: postgres
 
-      REDIS_URL: redis://localhost:6379/0
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
 
       SECRET_KEY: your-secret-key
       ALGORITHM: HS256
@@ -86,12 +87,6 @@ jobs:
       - name: Run Alembic migrations
         run: alembic upgrade head
 
-      - name: Check Redis configuration
-        run: |
-          echo "REDIS_HOST=$REDIS_HOST"
-          echo "REDIS_PORT=$REDIS_PORT"
-          python -c "import os; print('Python REDIS_HOST:', os.getenv('REDIS_HOST'))"
-          python -c "import os; print('Python REDIS_PORT:', os.getenv('REDIS_PORT'))"
       - name: Run pytest
         run: pytest
 

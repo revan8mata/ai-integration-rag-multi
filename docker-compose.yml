@@ -6,15 +6,20 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       - db
+      - redis
     volumes:
       - ".:/app:rw"
+
   redis:
     image: redis:7
     container_name: ai_chat_redis
     ports:
       - "6379:6379"
+
   db:
     image: pgvector/pgvector:pg16
     container_name: ai_chat_db
@@ -29,4 +34,3 @@ services:
 
 volumes:
   postgres_data:
-

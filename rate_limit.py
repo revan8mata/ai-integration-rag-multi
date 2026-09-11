@@ -2,14 +2,14 @@ import os
 import redis
 from fastapi import HTTPException
 
-REDIS_HOST = os.getenv("REDIS_HOST", "redis")
-REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
+REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
 
-r = redis.Redis(
-    host=REDIS_HOST,
-    port=REDIS_PORT,
-    db=0,
+r = redis.Redis.from_url(
+    REDIS_URL,
+    decode_responses=True,
 )
+
+
 
 def record_token_usage(user_id: int, token_count: int, window_seconds: int):
     key = f"token_limit:{user_id}:chat"

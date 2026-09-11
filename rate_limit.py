@@ -3,7 +3,7 @@ import redis
 from fastapi import HTTPException
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://redis:6379/0")
-
+print(REDIS_URL)
 r = redis.Redis.from_url(
     REDIS_URL,
     decode_responses=True,

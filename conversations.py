@@ -103,7 +103,8 @@ User question:
     background_tasks=background_tasks,
     event_type=event_type,
     payload=payload),
-    media_type="text/event-stream"
+    media_type="text/event-stream",
+    headers={"X-Conversation-Id": str(conversation.id)}
 )
 # 1. db set up
 # 2. rate limit check
@@ -170,7 +171,7 @@ async def conversation (conversation_id : int,
 
     return StreamingResponse(
         streameresponse(history=history,
-                        conversation_id=message.conversation_id,
+                        conversation_id=conversation_id,
                         current_user_id=current_user.id,
                         db=db ,
                         background_tasks=background_tasks,

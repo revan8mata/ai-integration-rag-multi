@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document Query</title>
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --panel: #17171a;
+    --border: #2c2c30;
+    --text: #e9e9ea;
+    --muted: #8a8a90;
+    --accent: #4f7cff;
+    --user-bubble: #202024;
+    --mono: "SF Mono", "Consolas", "Menlo", monospace;
+    --sans: -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #app {
+    display: none; /* toggled to flex on successful login, via JS */
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  header span {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  #upload-row {
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+
+  #upload-row label {
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    background: var(--bg);
+  }
+
+  #upload-row label:hover {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+
+  #file-status {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .msg {
+    max-width: 640px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    border: 1px solid var(--border);
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: var(--user-bubble);
+  }
+
+  .msg.assistant {
+    align-self: flex-start;
+    background: var(--panel);
+    border-left: 2px solid var(--accent);
+  }
+
+  .msg.system {
+    align-self: center;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    border: none;
+    background: none;
+  }
+
+  .msg .sources {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  #input-row {
+    border-top: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  #question {
+    flex: 1;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: var(--sans);
+    outline: none;
+  }
+
+  #question:focus {
+    border-color: var(--accent);
+  }
+
+  #send {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  #send:hover { opacity: 0.9; }
+  #send:disabled { opacity: 0.4; cursor: default; }
+
+  #auth-screen {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #auth-box {
+    width: 320px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 24px;
+  }
+
+  #auth-box h2 {
+    font-size: 15px;
+    margin: 0 0 16px 0;
+  }
+
+  #auth-box input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: var(--sans);
+    outline: none;
+    margin-bottom: 10px;
+  }
+
+  #auth-box input:focus {
+    border-color: var(--accent);
+  }
+
+  #auth-box button {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+
+  #auth-box button.secondary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  #auth-box button:hover { opacity: 0.9; }
+
+  #password-wrap {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  #password-wrap input {
+    margin-bottom: 0;
+    padding-right: 60px;
+  }
+
+  #password-wrap button#toggle-password {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 11px;
+    font-family: var(--mono);
+    cursor: pointer;
+    padding: 4px 6px;
+    width: auto;
+    margin-bottom: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  #password-wrap button#toggle-password:hover {
+    color: var(--text);
+    opacity: 1;
+  }
+
+  #password-hint {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin: -4px 0 10px 0;
+  }
+
+  #auth-error {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #ff6b6b;
+    min-height: 16px;
+    margin-bottom: 8px;
+  }
+
+  .loading::after {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    margin-left: 4px;
+    background: var(--muted);
+    animation: pulse 1s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div id="auth-box">
+    <h2 id="auth-title">Log in</h2>
+    <div id="auth-error"></div>
+    <input type="text" id="auth-username" placeholder="username" autocomplete="username">
+    <div id="password-wrap">
+      <input type="password" id="auth-password" placeholder="password" autocomplete="current-password">
+      <button type="button" id="toggle-password">show</button>
+    </div>
+    <div id="password-hint" style="display:none">8+ chars, upper, lower, number, special char</div>
+    <button id="auth-submit">Log in</button>
+    <button id="auth-toggle" class="secondary">Need an account? Register</button>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <h1>Document Query</h1>
+    <span>ask questions about your uploaded documents</span>
+    <span style="margin-left:auto; cursor:pointer;" id="logout-btn">log out</span>
+  </header>
+
+  <div id="upload-row">
+    <label for="file-input">upload document</label>
+    <input type="file" id="file-input" style="display:none" accept=".pdf,.txt,.md">
+    <span id="file-status">no file selected</span>
+  </div>
+
+  <div id="messages">
+    <div class="msg system">upload a document, then ask a question below</div>
+  </div>
+
+  <div id="input-row">
+    <input type="text" id="question" placeholder="Ask something about your documents..." autocomplete="off">
+    <button id="send">Send</button>
+  </div>
+</div>
+
+<script>
+  // ---- CONFIGURE THIS TO MATCH YOUR ACTUAL API ----
+  const API_BASE = "";
+  // --------------------------------------------------
+
+  // Kept in memory only, never localStorage/sessionStorage -- a page
+  // refresh means logging in again, which is the trade-off for not
+  // persisting a bearer token in browser storage.
+  let AUTH_TOKEN = "";
+
+  const authScreen = document.getElementById("auth-screen");
+  const appEl = document.getElementById("app");
+  const authTitle = document.getElementById("auth-title");
+  const authError = document.getElementById("auth-error");
+  const authUsername = document.getElementById("auth-username");
+  const authPassword = document.getElementById("auth-password");
+  const togglePassword = document.getElementById("toggle-password");
+
+  togglePassword.addEventListener("click", () => {
+    const isHidden = authPassword.type === "password";
+    authPassword.type = isHidden ? "text" : "password";
+    togglePassword.innerText = isHidden ? "hide" : "show";
+  });
+  const authSubmit = document.getElementById("auth-submit");
+  const authToggle = document.getElementById("auth-toggle");
+  const logoutBtn = document.getElementById("logout-btn");
+
+  let mode = "login"; // or "register"
+
+  const passwordHint = document.getElementById("password-hint");
+
+  authToggle.addEventListener("click", () => {
+    mode = mode === "login" ? "register" : "login";
+    authTitle.innerText = mode === "login" ? "Log in" : "Register";
+    authSubmit.innerText = mode === "login" ? "Log in" : "Register";
+    authToggle.innerText = mode === "login" ? "Need an account? Register" : "Already have an account? Log in";
+    authError.innerText = "";
+    passwordHint.style.display = mode === "register" ? "block" : "none";
+  });
+
+  // Mirrors the backend's @field_validator('password') exactly -- purely
+  // for fast, friendly feedback before hitting the network. The backend
+  // is still the real source of truth; this is just UX, not a security
+  // boundary of any kind.
+  function validatePasswordClientSide(pw) {
+    if (pw.length < 8) return "password must be at least 8 characters";
+    if (!/[A-Z]/.test(pw)) return "password must contain at least one uppercase letter";
+    if (!/[a-z]/.test(pw)) return "password must contain at least one lowercase letter";
+    if (!/[0-9]/.test(pw)) return "password must contain at least one number";
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(pw)) return "password must contain at least one special character";
+    return null;
+  }
+
+  // FastAPI's shape for detail differs by error type:
+  // - HTTPException(detail="some string")  -> detail is a plain string
+  // - Pydantic validation errors (422)      -> detail is an array of
+  //   {"loc": [...], "msg": "...", "type": "..."} objects
+  // This normalizes both into one readable string.
+  function extractErrorDetail(errBody, fallback) {
+    const d = errBody && errBody.detail;
+    if (!d) return fallback;
+    if (typeof d === "string") return d;
+    if (Array.isArray(d)) {
+      return d.map(e => e.msg || JSON.stringify(e)).join("; ");
+    }
+    return fallback;
+  }
+
+  authSubmit.addEventListener("click", async () => {
+    const username = authUsername.value.trim();
+    const password = authPassword.value;
+    if (!username || !password) {
+      authError.innerText = "enter a username and password";
+      return;
+    }
+
+    if (mode === "register") {
+      const clientError = validatePasswordClientSide(password);
+      if (clientError) {
+        authError.style.color = "#ff6b6b";
+        authError.innerText = clientError;
+        return;
+      }
+    }
+
+    authError.innerText = "";
+    authSubmit.disabled = true;
+
+    try {
+      if (mode === "register") {
+        const res = await fetch(API_BASE + "/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(extractErrorDetail(err, "registration failed"));
+        }
+        // Registered but not logged in yet -- flip to login mode so they
+        // can sign in with the account they just created.
+        mode = "login";
+        authTitle.innerText = "Log in";
+        authSubmit.innerText = "Log in";
+        authToggle.innerText = "Need an account? Register";
+        passwordHint.style.display = "none";
+        authError.innerText = "account created — log in below";
+        authError.style.color = "#4f7cff";
+      } else {
+        // OAuth2PasswordRequestForm expects form-urlencoded, NOT JSON --
+        // this is the specific gotcha with FastAPI's default login form.
+        const body = new URLSearchParams();
+        body.append("username", username);
+        body.append("password", password);
+
+        const res = await fetch(API_BASE + "/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: body.toString()
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(extractErrorDetail(err, "login failed"));
+        }
+
+        const data = await res.json();
+        AUTH_TOKEN = data.access_token;
+
+        authScreen.style.display = "none";
+        appEl.style.display = "flex";
+        appEl.style.flexDirection = "column";
+        appEl.style.flex = "1";
+        appEl.style.minHeight = "0";
+      }
+    } catch (err) {
+      authError.style.color = "#ff6b6b";
+      authError.innerText = err.message;
+    } finally {
+      authSubmit.disabled = false;
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    AUTH_TOKEN = "";
+    appEl.style.display = "none";
+    authScreen.style.display = "flex";
+    authUsername.value = "";
+    authPassword.value = "";
+    conversationId = null;
+    messages.innerHTML = '<div class="msg system">upload a document, then ask a question below</div>';
+  });
+
+  const messages = document.getElementById("messages");
+  const questionInput = document.getElementById("question");
+  const sendBtn = document.getElementById("send");
+  const fileInput = document.getElementById("file-input");
+  const fileStatus = document.getElementById("file-status");
+
+  function addMessage(role, text, sourcesText) {
+    const el = document.createElement("div");
+    el.className = "msg " + role;
+    el.innerText = text;
+    if (sourcesText) {
+      const src = document.createElement("div");
+      src.className = "sources";
+      src.innerText = sourcesText;
+      el.appendChild(src);
+    }
+    messages.appendChild(el);
+    messages.scrollTop = messages.scrollHeight;
+    return el;
+  }
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    fileStatus.innerText = "uploading " + file.name + "...";
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(API_BASE + "/documents/", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + AUTH_TOKEN },
+        body: formData
+      });
+
+      if (!res.ok) throw new Error("upload failed: " + res.status);
+
+      const data = await res.json();
+      fileStatus.innerText = file.name + " — indexed";
+      addMessage("system", "document indexed: " + file.name);
+    } catch (err) {
+      fileStatus.innerText = "upload failed";
+      addMessage("system", "error: " + err.message);
+    }
+  });
+
+  // Tracks conversation_id across turns. null = no conversation started yet,
+  // so the next send hits /talk; once set, subsequent sends hit
+  // /conversations/{id}/messages instead.
+  let conversationId = null;
+
+  async function sendQuestion() {
+    const question = questionInput.value.trim();
+    if (!question) return;
+
+    addMessage("user", question);
+    questionInput.value = "";
+    sendBtn.disabled = true;
+
+    const loadingEl = addMessage("assistant", "");
+    loadingEl.classList.add("loading");
+    let started = false;
+
+    try {
+      // schemas.Prompt is assumed to be {"content": str} based on
+      // prompt.content usage throughout the backend -- adjust the key
+      // name here if your actual Pydantic model differs.
+      const provider = "gemini"; // swap for a dropdown value if you add one
+      const isNewConversation = conversationId === null;
+
+      const url = isNewConversation
+        ? API_BASE + "/talk?provider=" + encodeURIComponent(provider)
+        : API_BASE + "/conversations/" + conversationId + "/messages?provider=" + encodeURIComponent(provider);
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": "Bearer " + AUTH_TOKEN,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ content: question })
+      });
+
+      if (!res.ok) throw new Error("request failed: " + res.status);
+
+      // Only /talk sends this header (a brand new conversation was just
+      // created) -- capture it so every message after this one routes to
+      // /conversations/{id}/messages instead.
+      const newConversationId = res.headers.get("X-Conversation-Id");
+      if (newConversationId) conversationId = newConversationId;
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const piece = decoder.decode(value, { stream: true });
+        if (!piece) continue;
+
+        if (!started) {
+          loadingEl.classList.remove("loading");
+          started = true;
+        }
+        fullText += piece;
+        loadingEl.innerText = fullText;
+        messages.scrollTop = messages.scrollHeight;
+      }
+
+      if (!fullText) {
+        loadingEl.innerText = "(no response received)";
+      }
+    } catch (err) {
+      loadingEl.classList.remove("loading");
+      loadingEl.innerText = "error: " + err.message;
+    } finally {
+      sendBtn.disabled = false;
+    }
+  }
+
+  sendBtn.addEventListener("click", sendQuestion);
+  questionInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendQuestion();
+  });
+</script>
+
+</body>
+</html>

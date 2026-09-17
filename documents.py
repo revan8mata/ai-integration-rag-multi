@@ -81,7 +81,7 @@ def embed_documents(texts: List[str]) -> List[list]:
 
 # vectors = []
 # for e in result.embeddings:
-#     vectors.append(e.values)
+#    vectors.append(e.values)
 
 
 def run_document_webhook(document_id: int, filename: str, chunk_count: int, user_id: int):

@@ -15,7 +15,7 @@ from google import genai
 from google.genai import types
 import models, oauth2
 from database import SessionLocal, get_db
- # wherever your genai client lives
+
 from conversations import fire_webhook
 
 client = genai.Client(api_key=settings.api_key)
@@ -31,14 +31,10 @@ ALLOWED_CONTENT_TYPES = {
 EMBED_DIM = 768
 EMBED_BATCH_SIZE = 100  # tune to API limits
 
-# Chunk sizing is now in TOKENS, not words -- this is what the embedding
-# model actually consumes, and word count is a loose (and misleading) proxy
-# for it. gemini-embedding-001 doesn't ship its own public tokenizer, so we
-# use tiktoken's cl100k_base as a close-enough stand-in for length
-# estimation. It won't be byte-for-byte exact for a non-OpenAI model, but
-# it's far more consistent than counting words.
+
+
 CHUNK_SIZE_TOKENS = 400
-CHUNK_OVERLAP_TOKENS = 60  # ~15% overlap so context isn't lost at boundaries
+CHUNK_OVERLAP_TOKENS = 60  # ~15% overlap . context isn't lost at boundaries
 
 _tokenizer = tiktoken.get_encoding("cl100k_base")
 
@@ -48,8 +44,7 @@ _splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
     chunk_overlap=CHUNK_OVERLAP_TOKENS,
     # Tries these separators in order: paragraph breaks first, then lines,
     # then sentences, then words, then characters as a last resort. This is
-    # the actual fix over the old approach -- it only falls back to a raw
-    # character cut if it truly can't find a cleaner boundary.
+
     separators=["\n\n", "\n", ". ", " ", ""],
 )
 
@@ -62,14 +57,6 @@ def extract_text(content: bytes, content_type: str) -> str:
 
 
 def chunk_text(text: str) -> List[str]:
-    """Token-aware, structure-respecting chunking.
-
-    Splits on paragraph breaks first, falling back to lines, sentences,
-    words, and finally raw characters only if nothing cleaner is found.
-    Chunk size + overlap are measured in tokens (via tiktoken) rather than
-    words, so chunks are sized against what the embedding model actually
-    sees instead of a loose word-count proxy.
-    """
 
     if not text.strip():
         return []
@@ -98,9 +85,8 @@ def embed_documents(texts: List[str]) -> List[list]:
 
 
 def run_document_webhook(document_id: int, filename: str, chunk_count: int, user_id: int):
-    """Background task opens its OWN session -- never reuse the request's
-    db session here, it may already be closed/returned to the pool by the
-    time this runs."""
+    # Background task opens its OWN session
+
     db = SessionLocal()
     try:
         fire_webhook(

@@ -1,0 +1,27 @@
+Nimbus Stack — API Reference (Basic)
+
+Authentication
+All API requests require a Bearer token in the Authorization header. Tokens are generated under Workspace Settings > Developer > API Keys. Tokens are scoped to a single workspace and do not expire unless manually revoked.
+
+Rate Limits
+The API allows 120 requests per minute per token on Starter and Growth plans, and 600 requests per minute on Enterprise. Exceeding the limit returns a 429 status code with a Retry-After header.
+
+Core Endpoints
+
+GET /v1/projects
+Returns a list of all projects in the workspace, including id, name, board type, and member count.
+
+POST /v1/projects/{id}/tasks
+Creates a new task in the specified project. Required fields: title, assignee_id. Optional fields: due_date, description, labels.
+
+GET /v1/tasks/{id}
+Returns full details of a single task, including comments and activity history.
+
+PATCH /v1/tasks/{id}
+Updates fields on an existing task. Only fields included in the request body are modified; omitted fields remain unchanged.
+
+DELETE /v1/tasks/{id}
+Deletes a task permanently. This action cannot be undone via the API — deleted tasks can only be restored by contacting support within 30 days.
+
+Webhooks
+Nimbus Stack supports outbound webhooks for task.created, task.completed, and task.overdue events. Webhooks are configured under Workspace Settings > Developer > Webhooks and include a signing secret for payload verification.

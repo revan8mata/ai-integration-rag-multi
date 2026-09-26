@@ -1,0 +1,22 @@
+Nimbus Stack — Troubleshooting Guide
+
+Tasks aren't syncing to Slack
+Check that the Slack integration hasn't been disconnected under Workspace Settings > Integrations. Slack tokens expire if the app is uninstalled from your Slack workspace, even if it still appears connected on the Nimbus Stack side — reconnecting resolves this in most cases.
+
+I can't see Timeline view
+Timeline view is only available on Growth and Enterprise plans. If you're on a Growth plan and still don't see it, confirm your role is Editor or Admin — Viewers do not have access to Timeline editing controls.
+
+My webhook isn't firing
+Webhooks only fire for events that occur after the webhook was created; historical events are not replayed. Also confirm your endpoint returns a 2xx status within 5 seconds — Nimbus Stack retries failed webhook deliveries up to 3 times with exponential backoff, then marks the webhook as failing and pauses it after 10 consecutive failures.
+
+The mobile app won't let me edit Timeline tasks
+This is expected behavior — Timeline view editing is desktop-only. You can view Timeline tasks on mobile and add comments, but structural changes (dates, dependencies) require the desktop or web app.
+
+I was charged after canceling my subscription
+Cancellations take effect at the end of the current billing cycle, not immediately. If you canceled mid-cycle, one final charge for that cycle is expected. No charges should occur after that cycle ends — contact support if they do.
+
+API requests are returning 429 errors
+You've exceeded your plan's rate limit (120/min on Starter and Growth, 600/min on Enterprise). Check the Retry-After header in the response and back off accordingly. Consistently hitting this limit may indicate you should batch requests or upgrade your plan.
+
+Deleted a task by mistake
+Contact support within 30 days of deletion with the task ID or project name — deleted tasks can be restored from backup within that window, but not after.

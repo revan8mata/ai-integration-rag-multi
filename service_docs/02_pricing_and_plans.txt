@@ -1,0 +1,25 @@
+Nimbus Stack — Pricing & Plans FAQ
+
+What plans does Nimbus Stack offer?
+We offer three plans: Starter ($8/user/month), Growth ($15/user/month), and Enterprise (custom pricing). All plans are billed monthly or annually, with a 15% discount for annual billing.
+
+What's included in the Starter plan?
+Starter includes up to 50 workspace members, Kanban and List boards, basic time tracking, and Slack integration. It does not include Timeline view or GitHub sync.
+
+What's included in the Growth plan?
+Growth includes everything in Starter, plus unlimited members, Timeline view, GitHub sync, advanced reporting, and priority email support.
+
+What's included in Enterprise?
+Enterprise includes everything in Growth, plus SSO/SAML login, a dedicated account manager, custom onboarding, and a 99.9% uptime SLA.
+
+Is there a free trial?
+Yes. All plans include a 14-day free trial with full feature access — no credit card required to start.
+
+Can I switch plans later?
+Yes, you can upgrade or downgrade at any time from Workspace Settings > Billing. Downgrades take effect at the start of your next billing cycle; upgrades are prorated immediately.
+
+What happens if I exceed my member limit on Starter?
+You'll be prompted to upgrade to Growth. Existing members are never removed automatically — we just pause new invites until you upgrade or remove inactive members.
+
+Do you offer discounts for nonprofits or students?
+Yes, we offer a 30% discount for verified nonprofits and educational institutions. Contact support with proof of status to apply.

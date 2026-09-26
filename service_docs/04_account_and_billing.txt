@@ -1,0 +1,22 @@
+Nimbus Stack — Account & Billing FAQ
+
+How do I reset my password?
+Go to the login page and click "Forgot Password." A reset link is sent to your registered email and expires after 1 hour. If you don't receive it, check your spam folder or contact support.
+
+How do I change my email address?
+Go to Account Settings > Profile > Email. You'll need to confirm the change via a verification link sent to the new address. Your old email remains active until the new one is confirmed.
+
+How is billing calculated for teams that add or remove members mid-month?
+Billing is prorated daily. If you add a member on day 10 of a 30-day cycle, you're charged for the remaining 20 days at that member's rate. Removing a member issues a prorated credit toward your next invoice.
+
+Can I have multiple workspaces under one account?
+Yes. Each workspace is billed separately, but you can switch between them from the workspace picker in the top-left corner without needing to log in again.
+
+What payment methods are accepted?
+We accept all major credit cards and, for Enterprise plans, ACH bank transfer and invoicing with net-30 terms.
+
+How do I cancel my subscription?
+Go to Workspace Settings > Billing > Cancel Plan. Your workspace remains active in read-only mode for 30 days after cancellation, after which data is permanently deleted unless you export it first.
+
+Who can access billing settings?
+Only workspace Admins can view or modify billing information. Editors and Viewers do not have access to this section.

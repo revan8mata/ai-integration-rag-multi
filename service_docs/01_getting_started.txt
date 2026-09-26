@@ -1,0 +1,18 @@
+Nimbus Stack — Getting Started Guide
+
+Nimbus Stack is a project management platform for small and mid-sized teams. It combines task boards, time tracking, and team chat in one workspace.
+
+Creating Your Workspace
+When you sign up, you'll be asked to name your workspace and invite teammates by email. Each workspace can have up to 50 members on the Starter plan, or unlimited members on Growth and Enterprise plans.
+
+Creating Your First Project
+From the dashboard, click "New Project." You can choose between three board layouts: Kanban, List, or Timeline. Kanban is recommended for teams doing sprint-based work; Timeline is better for teams managing deadlines across multiple projects.
+
+Inviting Team Members
+Go to Workspace Settings > Members > Invite. You can assign roles at invite time: Admin, Editor, or Viewer. Admins can manage billing and workspace settings. Editors can create and edit tasks. Viewers can only comment and view progress.
+
+Connecting Integrations
+Nimbus Stack supports two-way sync with Slack, Google Calendar, and GitHub. Integrations are managed under Workspace Settings > Integrations. Note that GitHub sync requires Admin permissions to set up.
+
+Mobile App
+Nimbus Stack is available on iOS and Android. The mobile app supports task creation, commenting, and notifications, but does not currently support Timeline view editing — that's desktop-only for now.

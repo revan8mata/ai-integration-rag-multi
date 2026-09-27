@@ -9,7 +9,7 @@ Sign up, upload a document, and chat with it — it's live right now.
 *Real-time streaming response — tokens appear as they're generated, just like ChatGPT.*
 
 **💼 Open for freelance work** — I build backends like this for SaaS founders who need an AI chat/support feature. If this looks like something your product needs, let's talk:
-📧 [your-email-here] · 💼 [LinkedIn](https://www.linkedin.com/in/revan-8mata-13968a389/)
+📧 [your-email-here](revan8mata.dev@gmail.com) · 💼 [LinkedIn](https://www.linkedin.com/in/revan-8mata-13968a389/)
 
 ---
 

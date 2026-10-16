@@ -24,6 +24,7 @@ client = genai.Client(api_key=settings.api_key)
 
 async def streameresponse(history, conversation_id,  current_user_id ,
                           background_tasks ,   db  ,  payload: dict = None  ,   event_type: str = None   ,  provider="gemini"):
+    check_token_limit(current_user_id,20000)
 
     full_text = ""
     last_metadata = None
@@ -59,6 +60,7 @@ async def streameresponse(history, conversation_id,  current_user_id ,
 async def talk(prompt : schemas.Prompt,
                background_tasks:BackgroundTasks,
                db: Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user),provider: str = "gemini"):
+    check_token_limit(current_user, 20000)
     conversation = models.Conversation(
         user_id=current_user.id,
         title=prompt.content[:40]
@@ -196,7 +198,7 @@ async def delete_conversation(id : int , background_tasks:BackgroundTasks,
     db.delete(dlt_conversation)
     db.commit()
     background_tasks.add_task(fire_webhook,
-                              event_type="document_uploaded",
+                              event_type="delete_conversation",
                               payload={"conversation_id": conv_id,
                               "conversation_title": title_conversation,
                                                                                      }

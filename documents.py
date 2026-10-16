@@ -110,9 +110,9 @@ async def post_docs(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(oauth2.get_current_user),
 ):
-
-    if not current_user.is_admin:
-        raise HTTPException(status_code=403, detail="only admins can upload documents")
+    """disabled for demo"""
+    # if not current_user.is_admin:
+    #     raise HTTPException(status_code=403, detail="only admins can upload documents")
 
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(

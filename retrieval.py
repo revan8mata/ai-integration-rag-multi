@@ -19,7 +19,7 @@ async def get_relevant_chunks(query: str,user_id: int, db: Session) -> str:
     results = db.execute(
         select(models.Chunk)
         .join(models.Document)
-        # .where(models.Document.user_id == user_id)
+        .where(models.Document.user_id == user_id)
         .order_by(models.Chunk.embedding.cosine_distance(query_vector))
         .limit(5)
     ).scalars().all()

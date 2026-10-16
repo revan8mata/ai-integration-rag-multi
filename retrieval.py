@@ -29,6 +29,6 @@ async def get_relevant_chunks(query: str,user_id: int, db: Session) -> str:
 # vector comperasion point
 
 
-    # 1. embed the query
+    # 1.embed the query
     # 2. find similar chunks
     # 3. return them as a single string to inject into the prompt

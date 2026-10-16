@@ -60,7 +60,7 @@ async def streameresponse(history, conversation_id,  current_user_id ,
 async def talk(prompt : schemas.Prompt,
                background_tasks:BackgroundTasks,
                db: Session = Depends(get_db), current_user : int = Depends(oauth2.get_current_user),provider: str = "gemini"):
-    check_token_limit(current_user, 20000)
+    check_token_limit(current_user.id, 20000)
     conversation = models.Conversation(
         user_id=current_user.id,
         title=prompt.content[:40]
